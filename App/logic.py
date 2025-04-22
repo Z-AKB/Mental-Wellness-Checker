@@ -13,6 +13,32 @@ clinical_thresholds = {
     'Depression': [0, 6, 12, 18]
 }
 
+def classify_wellness(scores):
+    interpretation = {}
+    for dimension, score in scores.items():
+        thresholds = clinical_thresholds[dimension]
+        if score <= thresholds[1]:
+            level = "Low"
+        elif score <= thresholds[2]:
+            level = "Moderate"
+        else:
+            level = "High"
+        interpretation[dimension] = level
+    return interpretation
+
+def plot_scores(scores):
+    fig, ax = plt.subplots()
+    ax.bar(scores.keys(), scores.values(), color=['blue', 'orange', 'green'])
+    ax.set_title('Mental Wellness Scores')
+    ax.set_ylabel('Score')
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+    return image_base64
+
+# Database Initialization
 def init_db():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()

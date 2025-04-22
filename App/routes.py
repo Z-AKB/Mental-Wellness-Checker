@@ -59,3 +59,13 @@ def index():
         else:
             result = "You might be going through significant stress. It's important to seek professional help."
     return render_template("index.html", result=result)
+
+# Results route with chart
+@app_routes.route("/results")
+def results():
+    if "scores" not in session:
+        return redirect(url_for("app_routes.index"))  # Ensure there's data to display
+    scores = session["scores"]
+    classification = classify_wellness(scores)
+    chart = plot_scores(scores)
+    return render_template("results.html", scores=scores, classification=classification, chart=chart)
