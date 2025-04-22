@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow rounded-4 border-0">
+    <div class="card-header bg-primary text-white text-center rounded-top-4">
+      <h2>Mental Wellness Results</h2>
+    </div>
+    <div class="card-body">
+
+      {% if scores %}
+        <h5 class="text-secondary mb-3">Your Scores</h5>
+        <ul class="list-group mb-4">
+          {% for dimension, score in scores.items() %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <strong>{{ dimension }}</strong>
+              <span class="badge bg-info text-dark rounded-pill px-3 py-2 fs-6">{{ score }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="alert alert-success text-center fs-5">
+          <strong>Interpretation:</strong> {{ classification }}
+        </div>
+
+        <div class="text-center">
+          <a href="{{index.html }}" class="btn btn-outline-primary rounded-pill px-4">
+            Retake Assessment
+          </a>
+        </div>
+
+      {% else %}
+        <div class="alert alert-warning text-center">
+          No results found. Please complete the assessment first.
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
