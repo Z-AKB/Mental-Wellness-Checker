@@ -1,65 +1,105 @@
-# -*- coding: utf-8 -*-
-def calculate_score(answers, question_keys):
-    """
-    Calculate the total score from the selected answers.
-    Each answer is expected to be an integer value.
-    :param answers: a dict-like object (e.g., request.form) containing answers.
-    :param question_keys: a list of keys (e.g., ['question1', 'question2'])
-    :return: integer score
-    """
-    try:
-        score = sum(int(answers.get(key, 0)) for key in question_keys)
-    except ValueError:
-        score = 0
-    return score
+import sqlite3
+import os
+import matplotlib.pyplot as plt
+import io
+import base64
 
+DATABASE = 'mental_wellness.db'
 
-def classify_wellness(score):
-    """
-    Classify wellness based on score thresholds.
-    This function assigns a classification based on the total score.
-    Thresholds are examples and should be refined based on the clinical scale.
+# Clinical thresholds for classification
+clinical_thresholds = {
+    'Stress': [0, 5, 10, 15],
+    'Anxiety': [0, 4, 8, 12],
+    'Depression': [0, 6, 12, 18]
+}
 
-    :param score: total integer score
-    :return: classification string
-    """
-    if score <= 5:
-        return "Excellent"
-    elif 6 <= score <= 10:
-        return "Good"
-    elif 11 <= score <= 15:
-        return "Fair"
-    else:
-        return "Poor"
+def init_db():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            text TEXT NOT NULL,
+            dimension TEXT NOT NULL,
+            score_1 INTEGER,
+            score_2 INTEGER,
+            score_3 INTEGER,
+            score_4 INTEGER,
+            score_5 INTEGER
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
+# Scoring System
+def calculate_scores(responses):
+    scores = {'Stress': 0, 'Anxiety': 0, 'Depression': 0}
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    for key, value in responses.items():
+        cursor.execute("SELECT dimension, score_1, score_2, score_3, score_4, score_5 FROM questions WHERE id=?", (key,))
+        q = cursor.fetchone()
+        if q:
+            dimension, *scales = q
+            score = scales[int(value) - 1]
+            scores[dimension] += score
+    conn.close()
+    return scores
 
-def get_self_care_routines(classification):
-    """
-    Return a list of self-care suggestions based on the user's wellness classification.
+# Threshold Classification
+def classify_scores(scores):
+    classifications = {}
+    for dimension, score in scores.items():
+        thresholds = clinical_thresholds.get(dimension)
+        if thresholds:
+            if score < thresholds[1]:
+                level = 'Normal'
+            elif score < thresholds[2]:
+                level = 'Mild'
+            elif score < thresholds[3]:
+                level = 'Moderate'
+            else:
+                level = 'Severe'
+            classifications[dimension] = level
+    return classifications
 
-    :param classification: wellness level as string
-    :return: list of suggestions
-    """
-    routines = {
-        "Excellent": [
-            "Keep doing what you're doing!",
-            "Maintain a consistent sleep schedule.",
-            "Engage in activities that bring you joy."
-        ],
-        "Good": [
-            "Take short breaks during the day.",
-            "Practice mindfulness or meditation.",
-            "Stay socially connected."
-        ],
-        "Fair": [
-            "Consider talking to a mental health professional.",
-            "Limit screen time before bed.",
-            "Practice gratitude journaling."
-        ],
-        "Poor": [
-            "Seek support from a licensed therapist or counselor.",
-            "Talk to someone you trust.",
-            "Avoid isolation and try to engage in small, calming activities."
-        ]
+# Visualization
+def plot_scores(scores):
+    fig, ax = plt.subplots()
+    ax.bar(scores.keys(), scores.values(), color=['blue', 'orange', 'green'])
+    ax.set_title('Mental Wellness Scores')
+    ax.set_ylabel('Score')
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+    return image_base64
+
+# Self-care Suggestions Placeholder
+def suggest_self_care(classifications):
+    suggestions = {
+        'Stress': {
+            'Normal': "Keep up your relaxation habits.",
+            'Mild': "Try daily deep breathing or light exercise.",
+            'Moderate': "Consider journaling and reducing workload.",
+            'Severe': "Seek professional guidance and support groups."
+        },
+        'Anxiety': {
+            'Normal': "Maintain mindfulness routines.",
+            'Mild': "Use grounding techniques and limit caffeine.",
+            'Moderate': "Practice cognitive behavioral strategies.",
+            'Severe': "Consult a therapist or counselor."
+        },
+        'Depression': {
+            'Normal': "Stay socially engaged and active.",
+            'Mild': "Establish a sleep routine and stay connected.",
+            'Moderate': "Include physical activity in your day.",
+            'Severe': "Reach out for mental health support services."
+        }
     }
-    return routines.get(classification, ["Stay safe and take care."])
+
+    care_plan = {}
+    for dim, level in classifications.items():
+        care_plan[dim] = suggestions.get(dim, {}).get(level, "Try basic self-care.")
+    return care_plan
