@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="mb-4">Mental Wellness Check</h1>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Stress Level</label>
+    {% for i in range(0, 11) %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="stress" value="{{ i }}" required>
+        <label class="form-check-label">{{ i }}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Sleep Quality (10 = well-rested)</label>
+    {% for i in range(0, 11) %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="sleep" value="{{ i }}" required>
+        <label class="form-check-label">{{ i }}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Mood (10 = great mood)</label>
+    {% for i in range(0, 11) %}
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="mood" value="{{ i }}" required>
+        <label class="form-check-label">{{ i }}</label>
+      </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Check Wellness</button>
+</form>
+
+{% if recommendation %}
+<hr>
+<h3>Wellness Score: {{ recommendation.score }} ({{ recommendation.level }})</h3>
+<ul>
+  {% for r in recommendation.recommendations %}
+    <li>{{ r }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
