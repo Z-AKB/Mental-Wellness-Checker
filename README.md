@@ -95,5 +95,3 @@ http://localhost:5000
 ## 📄 License
 MIT License
 ```
-
-Let me know if you want a more professional tone or additions like screenshots or badges.
