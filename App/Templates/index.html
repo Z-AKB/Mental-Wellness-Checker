@@ -1,47 +1,33 @@
-{% extends 'base.html' %}
-{% block content %}
-<h1 class="mb-4">Mental Wellness Check</h1>
-<form method="post">
-  <div class="mb-3">
-    <label class="form-label">Stress Level</label>
-    {% for i in range(0, 11) %}
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stress" value="{{ i }}" required>
-        <label class="form-check-label">{{ i }}</label>
-      </div>
-    {% endfor %}
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Wellness Check</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Mental Wellness Check</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label for="question1">How often do you feel anxious?</label><br>
+                <input type="radio" name="question1" value="1"> Never
+                <input type="radio" name="question1" value="2"> Sometimes
+                <input type="radio" name="question1" value="3"> Often
+                <input type="radio" name="question1" value="4"> Always
+            </div>
 
-  <div class="mb-3">
-    <label class="form-label">Sleep Quality (10 = well-rested)</label>
-    {% for i in range(0, 11) %}
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="sleep" value="{{ i }}" required>
-        <label class="form-check-label">{{ i }}</label>
-      </div>
-    {% endfor %}
-  </div>
+            <div class="form-group">
+                <label for="question2">How often do you feel sad?</label><br>
+                <input type="radio" name="question2" value="1"> Never
+                <input type="radio" name="question2" value="2"> Sometimes
+                <input type="radio" name="question2" value="3"> Often
+                <input type="radio" name="question2" value="4"> Always
+            </div>
 
-  <div class="mb-3">
-    <label class="form-label">Mood (10 = great mood)</label>
-    {% for i in range(0, 11) %}
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="mood" value="{{ i }}" required>
-        <label class="form-check-label">{{ i }}</label>
-      </div>
-    {% endfor %}
-  </div>
-
-  <button type="submit" class="btn btn-primary">Check Wellness</button>
-</form>
-
-{% if recommendation %}
-<hr>
-<h3>Wellness Score: {{ recommendation.score }} ({{ recommendation.level }})</h3>
-<ul>
-  {% for r in recommendation.recommendations %}
-    <li>{{ r }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-{% endblock %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
